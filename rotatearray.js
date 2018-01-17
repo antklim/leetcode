@@ -11,7 +11,7 @@ const rotate = (nums, k) => {
 
   const r = k % n
   const b = nums.splice(n - r, r)
-  nums.unshift.apply(nums, b)
+  nums.unshift(...b)
 }
 
 const testCases = [
