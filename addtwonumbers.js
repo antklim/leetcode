@@ -5,71 +5,6 @@ const ListNode = function(val) {
   this.next = null
 }
 
-const listToNumber = (list) => {
-  let n = 0
-  let i = 0
-  let el = list
-
-  while (true) {
-    let val = el.val
-    n = n + val * 10 ** i
-
-    if (!el.next) return n
-
-    el = el.next
-    i++
-  }
-}
-
-const testCases = [
-  {l: [2, 4, 3], expected: 342},
-  {l: [0], expected: 0},
-]
-
-testCases.forEach(test => {
-  const list = new ListNode(test.l[0])
-  let current = list
-
-  for (let i = 1; i < test.l.length; i++) {
-    current.next = new ListNode(test.l[i])
-    current = current.next
-  }
-
-  const actual = listToNumber(list)
-  assert.equal(actual, test.expected, `l: ${test.l}; list: ${JSON.stringify(list)}; expected: ${test.expected}; actual: ${actual}`)
-})
-
-const numberToList = (num) => {
-  if (num < 10) return new ListNode(num)
-
-  let d = num
-  let head
-  let current
-
-  while (d > 0) {
-    r = d % 10
-    d = Math.floor(d / 10)
-
-    if (!head) {
-      head = new ListNode(r)
-      current = head
-    } else {
-      current.next = new ListNode(r)
-      current = current.next
-    }
-  }
-
-  return head
-}
-
-const head = new ListNode(2)
-const next1 = new ListNode(4)
-next1.next = new ListNode(3)
-head.next = next1
-
-const actual = numberToList(342)
-assert.deepEqual(actual, head, `actual: ${JSON.stringify(actual)}, expected: ${JSON.stringify(head)}`)
-
 /**
  * Definition for singly-linked list.
  * function ListNode(val) {
@@ -83,14 +18,89 @@ assert.deepEqual(actual, head, `actual: ${JSON.stringify(actual)}, expected: ${J
  * @return {ListNode}
  */
 var addTwoNumbers = function(l1, l2) {
-  const num1 = listToNumber(l1)
-  const num2 = listToNumber(l2)
-  return numberToList(num1 + num2)
+  let c1 = l1
+  let c2 = l2
+  let head
+  let current
+  let mem = 0
+  let l1end = l2end = false
+
+  while (true) {
+    let val1 = l1end ? 0 : c1.val
+    let val2 = l2end ? 0 : c2.val
+    let sum = val1 + val2 + mem
+
+    if (sum >= 10) {
+      sum -= 10
+      mem = 1
+    } else {
+      mem = 0
+    }
+
+    if (!head) {
+      head = new ListNode(sum)
+      current = head
+    } else {
+      current.next = new ListNode(sum)
+      current = current.next
+    }
+
+    l1end = c1.next === null
+    l2end = c2.next === null
+    if (l1end && l2end) {
+      if (mem) current.next = new ListNode(mem)
+      return head
+    }
+
+    if (!l1end) c1 = c1.next
+    if (!l2end) c2 = c2.next
+  }
+
 };
 
+const testCases = [
+  {l1: [0], l2: [0], expected: [0]},
+  {l1: [1], l2: [2], expected: [3]},
+  {l1: [0], l2: [1, 8], expected: [1, 8]},
+  {l1: [2, 1], l2: [3, 2], expected: [5, 3]},
+  {l1: [9, 1], l2: [3, 1], expected: [2, 3]},
+  {l1: [9, 9], l2: [3, 1], expected: [2, 1, 1]},
+  {l1: [9, 9, 1], l2: [1, 0, 1], expected: [0, 0, 3]},
+]
+
+testCases.forEach(test => {
+  let current
+
+  const l1 = new ListNode(test.l1[0])
+  current = l1
+
+  for (let i = 1; i < test.l1.length; i++) {
+    current.next = new ListNode(test.l1[i])
+    current = current.next
+  }
+
+  const l2 = new ListNode(test.l2[0])
+  current = l2
+
+  for (let i = 1; i < test.l2.length; i++) {
+    current.next = new ListNode(test.l2[i])
+    current = current.next
+  }
+
+  const expected = new ListNode(test.expected[0])
+  current = expected
+
+  for (let i = 1; i < test.expected.length; i++) {
+    current.next = new ListNode(test.expected[i])
+    current = current.next
+  }
+
+  const actual = addTwoNumbers(l1, l2)
+  assert.deepEqual(actual, expected, `l1: ${test.l1}; l2: ${test.l2}; expected: ${JSON.stringify(expected)}; actual: ${JSON.stringify(actual)}`)
+})
 
 
-/***
+/*
 [2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,9]
 [5,6,4,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,2,4,3,9,9,9,9]
 
@@ -98,3 +108,4 @@ var addTwoNumbers = function(l1, l2) {
 
 expected
 [7,0,8,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,4,8,6,1,4,3,9,1]
+*/
